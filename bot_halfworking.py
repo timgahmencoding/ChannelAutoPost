@@ -9,28 +9,50 @@ logging.basicConfig(
 )
 log = logging.getLogger("ChannelAutoPost")
 
-
 # ----------------------------------------------------------------------------------------------
 # start the bot
 
 log.info("Starting...")
-
 
 try:
     apiid = config("APP_ID", cast=int)
     apihash = config("API_HASH")
     bottoken = config("BOT_TOKEN")
 
-    FROM_ = config("FROM_CHANNEL")
-    TO_ = config("TO_CHANNEL")
+    FROM = config("FROM_CHANNEL")
+    TO = config("TO_CHANNEL")
 
-    FROM = [int(i) for i in FROM_.split(",")]
-    TO = [int(i) for i in TO_.split(",")]
+    # FROM = [int(i) for i in FROM_.split(",")]
+    # TO = [int(i) for i in TO_.split(",")]
 
-    # log.info(f"\n\nFROM_ {FROM_}\nTO_ {TO_}\n\nFROM {FROM}\nTO {TO}\n\n")
-    log.info(f"Forwarding:")
-    # log.info(f"\n\nFROM_ {FROM_}\nTO_ {TO_}\n")
-    log.info(f"\n\nFROM {FROM}\nTO {TO}")
+    # frm = [int(_) for _ in x.split(" ")]
+    # frm = FROM.split(" ")
+    # tochnls = TO.split(" ")
+
+    log.info(" ---------------------------- ")
+    log.info("FROM_CHANNEL: %s", FROM)
+    log.info("TO_CHANNEL: %s", TO)
+    log.info(" ---------------------------- ")
+
+    # frm = [int(i) for i in FROM_.split(",")]
+    # tochnls = [int(i) for i in TO_.split(",")]
+
+    # log.info(f"\n\nFROM_ {FROM}\nTO_ {TO}\n\nFROM {FROM}\nTO {TO}\n\n")
+
+
+    # frm = config("FROM_CHANNEL", cast=lambda x: [int(_) for _ in x.split(" ")])
+    # tochnls = config("TO_CHANNEL", cast=lambda x: [int(_) for _ in x.split(" ")])
+
+    # log.info(f"FROM_CHANNEL {frm}")
+    # log.info(f"TO_CHANNEL {tochnls}")
+    # log.info(f"tochnl {tochnl}")
+
+    # SUDO_USERS = []
+    # if len(TO_CHANNEL) != 0:
+    #     SUDO_USERS = {int(TO_CHANNEL.strip()) for TO_CHANNEL in TO_CHANNEL.split(",")}
+    # else:
+    #     SUDO_USERS = set()
+    # log.info(f"SUDO_USERS {SUDO_USERS}")
 
 
     datgbot = TelegramClient("ChannelAutoForwarder", apiid, apihash).start(bot_token=bottoken)
@@ -57,7 +79,7 @@ async def _(event):
 
 # ----------------------------------------------------------------------------------------------
 @datgbot.on(events.NewMessage(pattern="/help"))
-async def helpp(event):
+async def _help(event):
     await event.reply(
         "**Help**\n\nThis bot will send all new posts in one channel to the other channel. (without forwarded tag)!\nIt can be used only in two channels at a time, so kindly deploy your own bot from [here](https://github.com/xditya/ChannelAutoForwarder).\n\nAdd me to both the channels and make me an admin in both, and all new messages would be autoposted on the linked channel!!\n\nLiked the bot? Drop a ♥ to @xditya_Bot :)"
     )
@@ -88,6 +110,18 @@ async def _(event):
                 except Exception:
                     media = event.media.document
                     log.info(f"Forwarded a message from {FROM} to {TO} (Media.Document)")
+
+
+                    # ==================
+                    # test
+                    # ==================
+
+                    # await event.reply("Forwarded a message from {FROM} to {TO} (Media.Document)")
+                    # await datgbot.send_message(sender, f'Forwarded a message from {FROM} to {TO} (Media.Document)')
+
+                    # ==================
+
+
                     await datgbot.send_file(
                         i, media, caption=event.text, link_preview=False
                     )
@@ -97,7 +131,7 @@ async def _(event):
                 log.info(f"Forwarded a message from {FROM} to {TO}")
                 await datgbot.send_message(i, event.text, link_preview=False)
         except FloodWait as fw:
-            await datgbot.send_message(sender, f'You have floodwaits of {fw.value} seconds, cancelling batch') 
+            await datgbot.send_message(sender, f'You have floodwaits of {fw.value} seconds, cancelling batch')
         except Exception as exc:
             log.error(
                 "TO_CHANNEL ID is wrong or I can't send messages there (make me admin).\nTraceback:\n%s",
